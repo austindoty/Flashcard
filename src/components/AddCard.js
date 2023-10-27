@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { createCard, readDeck } from "../utils/api/index";
+import  CardForm from "/CardForm";
 
 function AddCard() {
     const { deckId } = useParams();
@@ -28,6 +29,17 @@ function AddCard() {
         }
         fetchData();
     }, []);
+
+    const handleAddCard = async (formData) => {
+        try {
+          // Assuming you have an API function to create a card
+          const response = await createCard(deckId, formData); // Make an API request to create a card
+          console.log("Card created:", response); // Handle success
+          history.push(`/decks/${deckId}`); // Redirect to the deck page or perform other actions
+        } catch (error) {
+          console.error("Error creating card:", error); // Handle errors
+        }
+      }
 
     function handleChange({ target }) {
         setNewCard({
@@ -64,40 +76,11 @@ function AddCard() {
                 </li>
                 <li className="breadcrumb-item active">Add Card</li>
             </ol>
-            <form onSubmit={handleSubmit}>
-                <h2>{deck.name}: Add Card</h2>
-                <div className="form-group">
-                    <label>Front</label>
-                    <textarea
-                        id="front"
-                        name="front"
-                        className="form-control"
-                        onChange={handleChange}
-                        type="text"
-                        value={newCard.front}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Back</label>
-                    <textarea
-                        id="back"
-                        name="back"
-                        className="form-control"
-                        onChange={handleChange}
-                        type="text"
-                        value={newCard.back}
-                    />
-                </div>
-                <button
-                    className="btn btn-secondary mx-1"
-                    onClick={() => handleDone()}
-                >
-                    Done
-                </button>
-                <button className="btn btn-primary mx-1" type="submit">
-                    Save
-                </button>
-            </form>
+            <CardForm
+                initialData={initialState}
+                onSubmit={handleAddCard}
+                onCancel={handleDone}
+            />
         </div>
     );
 }
