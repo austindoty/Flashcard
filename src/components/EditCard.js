@@ -18,50 +18,39 @@ function EditCard() {
         deckId: "",
     };
 
-    const [card, setCardData] = useState(initialDeckState);
-    const [deck, setDeckData] = useState(initialCardState);
-
-
-    useEffect(() => {
-        async function getDeckData() {
-            try {
-                const initialDeckData = await readDeck(deckId);
-                setDeckData(initialDeckData)
-            } catch (error){
-                console.error("Error fetching card data:", error)
-            }
-        }
-        getDeckData();
-    }, [deckId]);
+    const [card, setCard] = useState(initialDeckState);
+    const [deck, setDeck] = useState(initialCardState);
 
     useEffect(() => {
-        async function getCardData() {
+        async function fetchData() {
+            const abortController = new AbortController();
             try {
-                const initialDeckData = await readCard(cardId);
-                setCardData(initialCardState)
-            } catch (error){
-                console.error("Error updating Card:", error)
+                const cardResponse = await readCard(
+                    cardId,
+                    abortController.signal
+                );
+                const deckResponse = await readDeck(
+                    deckId,
+                    abortController.signal
+                );
+                setCard(cardResponse);
+                setDeck(deckResponse);
+            } catch (error) {
+                console.error("Something went wrong", error);
             }
+            return () => {
+                abortController.abort();
+            };
         }
-        getCardData();
-    }, [cardId]);
-            
-
-    /*function handleChange({ target }) {
-        setCard({
-            ...card,
-            [target.name]: target.value,
-        });
-    }*/
-
+        fetchData();
+    }, []);
+    
     async function handleSubmit(event) {
         event.preventDefault();
-        try {
-            await updateCard({...card, id: cardId, deckId: parseInt(deckId)})
-            history.push(`/decks/${deckId}`)
-        } catch (error) {
-            console.error("Error updating card:", error)
-        }
+        const abortController = new AbortController();
+        const response = await updateCard({ ...card }, abortController.signal);
+        history.push(`/decks/${deckId}`);
+        return response;
     }
 
     async function handleCancel() {
@@ -86,8 +75,6 @@ function EditCard() {
         }}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        card={card}
-        type="edit"
       />
 
         </div>
