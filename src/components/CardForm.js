@@ -1,53 +1,39 @@
 import React from "react";
 
-function CardForm({ initialData, onSubmit, onCancel }) {
-  const [formData, setFormData] = React.useState(initialData);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="front" className="form-label">Front</label>  
-        <textarea
-          id="front"
-          name="front"
-          className="form-control"
-          onChange={handleChange}
-          type="text"
-          value={formData.front}
-        />
-      </div>
-      <div className="form-group">
-      <label htmlFor="back" className="form-label">Back</label>
-        <textarea
-          id="back"
-          name="back"
-          className="form-control"
-          onChange={handleChange}
-          type="text"
-          value={formData.back}
-        />
-      </div>
-      <button className="btn btn-secondary mx-1" onClick={onCancel}>
-        Cancel
-      </button>
-      <button className="btn btn-primary mx-1" type="submit">
-        Save
-      </button>
-    </form>
-  );
+function CardForm({ handleSubmit, handleChange, formData, handleCancel }) {
+return (
+<form onSubmit={handleSubmit}>
+  <div className="form-group">
+    <label htmlFor="front">Front</label>
+    <textarea
+      className="form-control"
+      id="front"
+      name="front"
+      onChange={handleChange}
+      value={formData.front}
+      placeholder="Front side of card"
+    />
+    <br />
+  </div>
+  <div className="form-group">
+    <label htmlFor="back">Back</label>
+      <textarea
+      className="form-control"
+      id="back"
+      name="back"
+      onChange={handleChange}
+      value={formData.back}
+      placeholder="Back side of card"
+      />
+    <br />
+  </div>
+  <button className="btn btn-secondary" onClick={handleCancel}>
+    Done
+  </button>
+  <button className="btn btn-primary" type="submit">
+    Save
+  </button>
+</form>
+);
 }
-
 export default CardForm;
