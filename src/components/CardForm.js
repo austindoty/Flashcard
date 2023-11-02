@@ -19,7 +19,7 @@ function CardForm({ initialData, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
-        <label>Front</label>
+        <label htmlFor="front" className="form-label">Front</label>  
         <textarea
           id="front"
           name="front"
@@ -30,7 +30,7 @@ function CardForm({ initialData, onSubmit, onCancel }) {
         />
       </div>
       <div className="form-group">
-        <label>Back</label>
+      <label htmlFor="back" className="form-label">Back</label>
         <textarea
           id="back"
           name="back"

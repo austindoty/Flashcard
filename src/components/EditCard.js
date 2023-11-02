@@ -93,6 +93,8 @@ function EditCard() {
         }}
         onSubmit={handleEditCard}
         onCancel={handleCancel}
+        card={card}
+        type="edit"
       />
 
         </div>
