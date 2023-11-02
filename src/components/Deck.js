@@ -155,8 +155,29 @@ function Deck() {
             </div>
         );
     } else {
-        return null;
+        return (
+            <div>           
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item">
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li className="breadcrumb-item active">{deck.name}</li>
+                </ol>
+                <h2>{deck.name}</h2>
+                <p>
+                    There are {cards.length}{" "}
+                    cards in this deck. 
+                </p>
+                <Link
+                    to={`/decks/${deck.id}/cards/new`}
+                    className="btn btn-primary mx-1"
+                >
+                    Add Cards
+                </Link>
+            </div>
+        );
     }
 }
+
 
 export default Deck;
