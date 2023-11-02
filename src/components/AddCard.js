@@ -1,70 +1,86 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { createCard, readDeck } from "../utils/api/index";
-import  CardForm from "./CardForm";
+import CardForm from "./CardForm";
 
 function AddCard() {
-    const { deckId } = useParams();
     const history = useHistory();
-    const initialState = {
+    const { deckId } = useParams(); // Retrieve deck id from url
+    const [currentDeck, setCurrentDeck] = useState({});
+
+    const initialFormState = {
         front: "",
         back: "",
     };
 
-    const [newCard, setNewCard] = useState(initialState);
-    const [deck, setDeck] = useState({});
+    const [formData, setFormData] = useState({ ...initialFormState });
 
     useEffect(() => {
-        async function fetchData() {
-            const abortController = new AbortController();
+        const abortController = new AbortController();
+        async function loadDeck() {
             try {
-                const response = await readDeck(deckId, abortController.signal);
-                setDeck(response);
-            } catch (error) {
-                console.error("Something went wrong", error);
+
+                const deck = await readDeck(deckId, abortController.signal);
+                setCurrentDeck(deck);
+            } catch (error) { 
+                if (error.name === "AbortError")
+                console.log("Aborted Load Single Deck");
+                else throw error;
             }
-            return () => {
-                abortController.abort();
-            };
         }
-        fetchData();
+            loadDeck();
+        return () => {
+            abortController.abort(); 
+        };
     }, []);
 
-    const handleAddCard = async (formData) => {
-        try {
-          // Assuming you have an API function to create a card
-          const response = await createCard(deckId, formData); // Make an API request to create a card
-          console.log("Card created:", response); // Handle success
-          history.push(`/decks/${deckId}`); // Redirect to the deck page or perform other actions
-        } catch (error) {
-          console.error("Error creating card:", error); // Handle errors
+    const handleChange = ({ target }) => {
+        setFormData({
+            ...formData,
+            [target.name]: target.value,
+        });
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        async function create() {
+            setFormData({ ...initialFormState }); // Reset form
+            await createCard(deckId, formData);
         }
-      }
-
-    
-
-    async function handleDone() {
+        create();
+    };
+    const handleCancel = () => {
         history.push(`/decks/${deckId}`);
     }
 
     return (
-        <div>
-            <ol className="breadcrumb">
-                <li className="breadcrumb-item">
-                    <Link to="/">Home</Link>
-                </li>
-                <li className="breadcrumb-item">
-                    <Link to={`/decks/${deckId}`}>{deck.name}</Link>
-                </li>
-                <li className="breadcrumb-item active">Add Card</li>
-            </ol>
-            <CardForm
-                initialData={initialState}
-                onSubmit={handleAddCard}
-                onCancel={handleDone}
-            />
+        <>
+            <div className="row">
+                <div className="col">
+                    <p className="breadcrumb">
+                        <Link to="/">
+                            <i className="bi bi-house-door"></i> Home
+                        </Link>
+                             / 
+                        <Link to={`/decks/${deckId}`}>{currentDeck.name}</Link>
+                            /Add Card
+                    </p>
+                </div>
+            </div>
+        <div className="row">
+            <div className="col">
+                <h3>{currentDeck.name}:</h3>
+                <h3>Add Card</h3>
+                    <CardForm
+                    handleSubmit={handleSubmit}
+                    handleChange={handleChange}
+                    formData={formData}
+                    handleCancel={handleCancel}
+                    />
+            </div>
         </div>
-    );
+        </>
+        );
 }
 
 export default AddCard;
