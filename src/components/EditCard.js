@@ -20,6 +20,7 @@ function EditCard() {
 
     const [card, setCard] = useState(initialDeckState);
     const [deck, setDeck] = useState(initialCardState);
+    
 
     useEffect(() => {
         async function fetchData() {
@@ -43,8 +44,8 @@ function EditCard() {
             };
         }
         fetchData();
-    }, []);
-    
+    }, [cardId]); 
+
     async function handleSubmit(event) {
         event.preventDefault();
         const abortController = new AbortController();
@@ -52,10 +53,68 @@ function EditCard() {
         history.push(`/decks/${deckId}`);
         return response;
     }
+    function handleChange({ target }) {
+        setCard({
+            ...card,
+            [target.name]: target.value,
+        });
+    }
 
     async function handleCancel() {
         history.push(`/decks/${deckId}`);
     }
+
+
+    /* return (
+        <div>
+            <ol className="breadcrumb">
+                <li className="breadcrumb-item">
+                    <Link to="/">Home</Link>
+                </li>
+                <li className="breadcrumb-item">
+                    <Link to={`/decks/${deckId}`}>{deck.name}</Link>
+                </li>
+                <li className="breadcrumb-item active">Edit Card {cardId}</li>
+            </ol>
+            <form onSubmit={handleSubmit}>
+                <h2>Edit Card</h2>
+                <div className="form-group">
+                    <label>Front</label>
+                    <textarea
+                        id="front"
+                        name="front"
+                        className="form-control"
+                        onChange={handleChange}
+                        type="text"
+                        value={card.front}
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Back</label>
+                    <textarea
+                        id="back"
+                        name="back"
+                        className="form-control"
+                        onChange={handleChange}
+                        type="text"
+                        value={card.back}
+                    />
+                </div>
+                <button
+                    className="btn btn-secondary mx-1"
+                    onClick={() => handleCancel()}
+                >
+                    Cancel
+                </button>
+                <button className="btn btn-primary mx-1" type="submit">
+                    Save
+                </button>
+            </form>
+        </div>
+    );
+} */
+
+
 
     return (
         <div>
@@ -70,9 +129,10 @@ function EditCard() {
             </ol>
             <CardForm
         initialData={{
-          front: card.front,
-          back: card.back,
+          front: cardId.front,
+          back: cardId.back,
         }}
+        onChange={handleChange}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />
