@@ -156,24 +156,49 @@ function Deck() {
         );
     } else {
         return (
-            <div>           
+            <div>
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item">
                         <Link to="/">Home</Link>
                     </li>
                     <li className="breadcrumb-item active">{deck.name}</li>
                 </ol>
-                <h2>{deck.name}</h2>
-                <p>
+                <div className="card">
+                    <div className="card-body">
+                        <h2 className="card-title">{deck.name}</h2>
+                        <p>{deck.description}</p>
+                        <button
+                            onClick={() => handleEditDeck()}
+                            className="btn btn-secondary mx-1"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => handleStudy()}
+                            className="btn btn-primary mx-1"
+                        >
+                            Study
+                        </button>
+                        <button
+                            onClick={() => handleAddCard()}
+                            className="btn btn-primary mx-1"
+                        >
+                            Add Cards
+                        </button>
+                        <button
+                            onClick={() => handleDeleteDeck(deck)}
+                            className="btn btn-danger mx-1"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                    
+                </div>
+                <hr></hr>
+                <h6>
                     There are {cards.length}{" "}
-                    cards in this deck. 
-                </p>
-                <Link
-                    to={`/decks/${deck.id}/cards/new`}
-                    className="btn btn-primary mx-1"
-                >
-                    Add Cards
-                </Link>
+                    cards in this deck.
+                </h6>
             </div>
         );
     }
