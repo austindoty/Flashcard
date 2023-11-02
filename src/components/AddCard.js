@@ -41,25 +41,7 @@ function AddCard() {
         }
       }
 
-    function handleChange({ target }) {
-        setNewCard({
-            ...newCard,
-            [target.name]: target.value,
-        });
-    }
-
-    async function handleSubmit(event) {
-        event.preventDefault();
-        const abortController = new AbortController();
-        const response = await createCard(
-            deckId,
-            { ...newCard },
-            abortController.signal
-        );
-        history.go(0);
-        setNewCard(initialState);
-        return response;
-    }
+    
 
     async function handleDone() {
         history.push(`/decks/${deckId}`);
