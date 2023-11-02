@@ -1,144 +1,105 @@
-import React, { useState, useEffect } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react"
+import { Link, useHistory, useParams } from 'react-router-dom'
 import { readCard, readDeck, updateCard } from "../utils/api/index";
-import  CardForm  from "./CardForm";
-
+import CardForm from "./CardForm.js"
 function EditCard() {
-    const { deckId, cardId } = useParams();
     const history = useHistory();
-    const initialDeckState = {
-        id: "",
-        name: "",
-        description: "",
-    };
-    const initialCardState = {
-        id: "",
+    const { deckId, cardId } = useParams();
+    const [currentDeck, setCurrentDeck] = useState({});
+
+    const initialFormState = {
+        id: -1,
         front: "",
         back: "",
-        deckId: "",
     };
+    const [formData, setFormData] = useState({ ...initialFormState });
 
-    const [card, setCard] = useState(initialDeckState);
-    const [deck, setDeck] = useState(initialCardState);
-    
-
-    useEffect(() => {
-        async function fetchData() {
-            const abortController = new AbortController();
-            try {
-                const cardResponse = await readCard(
-                    cardId,
-                    abortController.signal
-                );
-                const deckResponse = await readDeck(
-                    deckId,
-                    abortController.signal
-                );
-                setCard(cardResponse);
-                setDeck(deckResponse);
-            } catch (error) {
-                console.error("Something went wrong", error);
-            }
-            return () => {
-                abortController.abort();
-            };
+useEffect(() => {
+    const abortController = new AbortController();
+    async function loadDeck() {
+        try {
+            const deck = await readDeck(deckId, abortController.signal);
+            setCurrentDeck(deck);
+            console.log("I loaded the deck", deck);
+        } catch (error) {
+            if (error.name === "AbortError")
+            console.log("Aborted Load Single Deck");
+            else throw error;
         }
-        fetchData();
-    }, [cardId]); 
+    } loadDeck();
+    return () => {
+    console.log("Cleanup Load Single Deck");
+    abortController.abort();
+    };
+}, []);
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-        const abortController = new AbortController();
-        const response = await updateCard({ ...card }, abortController.signal);
+useEffect(() => {
+    const abortController = new AbortController();
+    async function loadCard() {
+        try {
+            const card = await readCard(cardId, abortController.signal);
+            setFormData({ ...card });
+
+        } catch (error){
+            if (error.name === "AbortError")
+            console.log("Aborted Load Single Card");
+            else throw error;
+        }
+    }
+
+    loadCard();
+    return () => {
+        abortController.abort();
+    };
+}, []);
+
+const handleChange = ({ target }) => {
+    setFormData({
+        ...formData,
+        [target.name]: target.value,
+    });
+};
+
+const handleSubmit = (event) => {
+    event.preventDefault();
+    async function create() {
+        setFormData({ ...initialFormState }); // Reset form
+        await updateCard(formData);
         history.push(`/decks/${deckId}`);
-        return response;
     }
-    function handleChange({ target }) {
-        setCard({
-            ...card,
-            [target.name]: target.value,
-        });
-    }
+    create();
+};
 
-    async function handleCancel() {
-        history.push(`/decks/${deckId}`);
-    }
+const handleCancel = () => {
+    history.push(`/decks/${deckId}`);
+};
 
-
-    /* return (
-        <div>
-            <ol className="breadcrumb">
-                <li className="breadcrumb-item">
-                    <Link to="/">Home</Link>
-                </li>
-                <li className="breadcrumb-item">
-                    <Link to={`/decks/${deckId}`}>{deck.name}</Link>
-                </li>
-                <li className="breadcrumb-item active">Edit Card {cardId}</li>
-            </ol>
-            <form onSubmit={handleSubmit}>
-                <h2>Edit Card</h2>
-                <div className="form-group">
-                    <label>Front</label>
-                    <textarea
-                        id="front"
-                        name="front"
-                        className="form-control"
-                        onChange={handleChange}
-                        type="text"
-                        value={card.front}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Back</label>
-                    <textarea
-                        id="back"
-                        name="back"
-                        className="form-control"
-                        onChange={handleChange}
-                        type="text"
-                        value={card.back}
-                    />
-                </div>
-                <button
-                    className="btn btn-secondary mx-1"
-                    onClick={() => handleCancel()}
-                >
-                    Cancel
-                </button>
-                <button className="btn btn-primary mx-1" type="submit">
-                    Save
-                </button>
-            </form>
+return (
+<>
+    <div className="row">
+        <div className="col">
+            <p className="breadcrumb">
+                <Link to="/">
+                    <i className="bi bi-house-door"></i> Home
+                </Link>
+                    /
+                <Link to={`/decks/${deckId}`}>{currentDeck.name}</Link>
+                    / Edit Card {cardId}
+            </p>
         </div>
-    );
-} */
-
-
-
-    return (
-        <div>
-            <ol className="breadcrumb">
-                <li className="breadcrumb-item">
-                    <Link to="/">Home</Link>
-                </li>
-                <li className="breadcrumb-item">
-                    <Link to={`/decks/${deckId}`}>{deck.name}</Link>
-                </li>
-                <li className="breadcrumb-item active">Edit Card {cardId}</li>
-            </ol>
-            <CardForm
-        initialData={{
-          front: cardId.front,
-          back: cardId.back,
-        }}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
-
+    </div>
+    <div className="row">
+        <div className="col">
+            <h3>Edit Card</h3>
+                <CardForm
+                    handleSubmit={handleSubmit}
+                    handleChange={handleChange}
+                    formData={formData}
+                    handleCancel={handleCancel}
+                />
         </div>
-    );
+    </div>
+</>
+);
 }
-
 export default EditCard;
