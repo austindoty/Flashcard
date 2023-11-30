@@ -8,6 +8,7 @@ function CreateDeck() {
         name: "",
         description: "",
     };
+    
     const [newDeck, setNewDeck] = useState(initialState);
 
     function handleChange({ target }) {
